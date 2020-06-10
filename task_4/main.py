@@ -1,9 +1,7 @@
 # -*-coding:utf-8 -*-
 
 
-
 import pandas as pd
-import datetime
 import time
 import os
 
@@ -26,6 +24,7 @@ base_path = os.path.dirname(__file__)
 #
 #     S&P500股票在2015年net income的均值是多少？最大值比最小值多多少？（每问10分，共计20分）
 #     S&P500股票在2016年的固定资产（fixed assets）占总资产(total assets)比例的均值是多少？固定资产占总资产比例最小的股票的代码（ticker symbol）是什么？（每问10分，共计20分）
+
 
 # 题目一
 def task_first(data):
@@ -115,7 +114,6 @@ def task_second():
             print('sector ' + name + ' 数据有误')
 
 
-
 """题目三"""
 # 3. merge!
 #
@@ -172,23 +170,22 @@ def task_third():
 # 假设2016年每一位交易员手中都有10000美元，假设他们都能够看到2016年全年的数据，假设他们都能抓住每一次机会，那么请问2016年底时，赚钱最多的股票是哪一只，赚了多少钱？
 
 
-def task_fourth():
+def task_fourth(start_money):
     prices_csv_data = pd.read_csv(base_path + '/resource/prices.csv', encoding='gbk')
     # 格式化数据
     prices_csv_data['date'] = prices_csv_data['date'].apply(
         lambda x: time.strptime(x.replace(' 00:00:00', ''), '%Y-%m-%d'))
     # 按时间分组
     prices_csv_data_grouped = prices_csv_data.groupby('date')
-    # 设置初始值1000美金
-    money = 10000
-    wirteFile('10000开始', '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+    money = start_money
+    wirteFile(str(start_money)+'美金开始', str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
     # 循环取出每天的数据
     for price_date, group in prices_csv_data_grouped:
         # 去除非2016年的数据
         if price_date.tm_year != 2016:
             continue
         wirteFile(str(price_date.tm_year) + '-' + str(price_date.tm_mon) + '-' + str(price_date.tm_mday) + '操作记录：',
-                  '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+                  str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
         # 计算收益率
         group_df = pd.DataFrame(group)
         group_df['yield'] = group['high'] / group['low']
@@ -197,7 +194,7 @@ def task_fourth():
         # 今天开始投资时的金钱
         today_start_money = money
         wirteFile('今日本金：' + str(today_start_money),
-                  '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+                  str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
         # 今日利润
         today_profit = 0
         for i in range(0, len(group_df)):
@@ -217,7 +214,7 @@ def task_fourth():
                           ',份额：' + str(volume) +
                           '，低位价格：' + str(low_price) +
                           '，高位价格：' + str(high_price),
-                          '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+                          str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
                 today_profit += volume * (high_price - low_price)
                 today_start_money = today_start_money - (volume * low_price)
             else:
@@ -227,12 +224,12 @@ def task_fourth():
                           ',份额：' + str(number) +
                           '，低位价格：' + str(low_price) +
                           '，高位价格：' + str(high_price),
-                          '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+                          str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
         money += today_profit
         wirteFile('当前利润：' + str(money),
-                  '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+                  str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
     wirteFile('总利润：' + str(money),
-              '1万美金起家，把握住每一次高低位，2016年全年收入.csv')
+              str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
 
 
 if __name__ == '__main__':
@@ -257,5 +254,7 @@ if __name__ == '__main__':
     # 题目三
     task_third()
     # 题目四
-    task_fourth()
+    # 起始资金
+    money = 10000
+    task_fourth(money)
 
