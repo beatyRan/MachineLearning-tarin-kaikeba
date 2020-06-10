@@ -152,6 +152,42 @@ task_second(securities_csv_data)
 #     请列举每个sector在2013-2016年累计Research&Development的总投入（10分）
 #     请列举出每个sector中，在2013-2016年累计Research&development投入最大的3家公司的名称以及投入的数值（20分）
 # 读取csv文件
+fundamentals_csv_data_three = pd.read_csv(base_path + '/resource/fundamentals.csv', encoding='gbk')
+securities_csv_data_three = pd.read_csv(base_path + '/resource/securities.csv', encoding='gbk')
+# 以右链接的方式将两个dataframe链接起来
+df_three = pd.merge(fundamentals_csv_data_three, securities_csv_data_three, on='Ticker Symbol', how="right")
+df_three = df_three.dropna(subset=['Period Ending'])
+# 调整数据格式
+df_three['Period Ending'] = df_three['Period Ending'].apply(
+    lambda x: time.strptime(x, '%Y-%m-%d').tm_year)
+#筛选符合条件的数据
+data_three = df_three[df_three['Period Ending'].isin([2013,2014,2015,2016])]
+data_three = data_three.dropna(subset=['GICS Sector'])
+# 按sector分组
+data_three_grouped = data_three.groupby('GICS Sector')
+wirteFile('sector,Research and Development', '每个sector在2013-2016年累计Research&Development的总投入.csv')
+wirteFile('sector,Ticker Symbol,Research and Development', '每个sector中，在2013-2016年累计Research&development投入最大的3家公司的名称以及投入的数值.csv')
+for name,group in data_three_grouped:
+    research_development_sum = group['Research and Development'].sum()
+    # 按照公司名称分组 并且计算研发投入总值
+    df_group = pd.DataFrame(group.groupby('Ticker Symbol')['Research and Development'].sum(),
+                                   columns=['Research and Development'])
+    # 按研发投入总值降序排序
+    df_group = df_group.sort_values(by='Research and Development', ascending=False)
+    for tickerSymbolName,sum_group in df_group[0:3]:
+        wirteFile('"' + name + '"' + ',' + tickerSymbolName + ',' + str(sum_group['Research and Development']),
+              '每个sector中，在2013-2016年累计Research&development投入最大的3家公司的名称以及投入的数值.csv')
+
+    print(df_group.iloc[0:3,:])
+    wirteFile('"' + name + '"' + ',' + str(research_development_sum), '每个sector在2013-2016年累计Research&Development的总投入.csv')
+
+"""题目四"""
+# 4. 现在让我们来看看更加复杂的数据
+#
+# 请导入price.csv，然后结合你的聪明才智回答以下问题（附加题，40分）
+#
+# 假设你是某基金公司的老板，现在对于每只股票，你都专门安排了一位负责它的交易员。公司规定每一位交易员手中的资金要么全部买入要么全部卖出（空仓，转化为现金）。
+# 假设2016年每一位交易员手中都有10000美元，假设他们都能够看到2016年全年的数据，假设他们都能抓住每一次机会，那么请问2016年底时，赚钱最多的股票是哪一只，赚了多少钱？
 
 prices_csv_data = pd.read_csv(base_path + '/resource/prices.csv', encoding='utf-8')
 # 题目三 填补缺失值计算
