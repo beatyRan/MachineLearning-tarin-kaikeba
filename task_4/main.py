@@ -176,6 +176,7 @@ def task_fourth(start_money):
     prices_csv_data['date'] = prices_csv_data['date'].apply(
         lambda x: time.strptime(x.replace(' 00:00:00', ''), '%Y-%m-%d'))
     # 按时间分组
+    prices_csv_data = prices_csv_data.sort_values(by='date', ascending=True)
     prices_csv_data_grouped = prices_csv_data.groupby('date')
     money = start_money
     wirteFile(str(start_money)+'美金开始', str(start_money)+'美金起家，把握住每一次高低位，2016年全年收入.csv')
